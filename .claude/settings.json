@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"D:/Prom/vosk-model-small-cn-0.22\" 2>/dev/null || echo \"模型目录不存在\")",
+      "Read(//d/Prom/**)",
+      "Bash(where ffmpeg *)",
+      "Bash(pip show *)"
+    ]
+  }
+}

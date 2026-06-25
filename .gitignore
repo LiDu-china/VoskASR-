@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 大文件（模型和安装包不上传）
+*.exe
+*.zip
+*.7z
+
+# 模型目录（太大，不上传）
+model/
+vosk-model-*/
+
+# 安装包目录
+installer/
+
+# 临时文件
+*.tmp
+*.log
