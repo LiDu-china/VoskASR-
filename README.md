@@ -13,17 +13,47 @@
 
 ## 📦 安装方式
 
-### 方式一：安装包（推荐）
+### 方式一：安装包（推荐，适合普通用户）
 
-1. 下载 `VoskASR-Setup-1.0.exe`
-2. 运行安装包，选择安装目录
+> ⚠️ 安装包约 1.2GB，需要从网盘下载
+
+**下载地址**：[百度网盘/夸克网盘]（请在此处添加你的网盘链接）
+
+下载后：
+1. 运行 `VoskASR-Setup-1.0.exe`
+2. 选择安装目录（默认即可）
 3. 安装完成后双击桌面图标即可使用
 
-### 方式二：便携版
+### 方式二：源码运行（适合开发者）
 
-1. 下载 `VoskASR-便携版.zip`
-2. 解压到任意目录
-3. 双击 `VoskASR.exe` 运行
+```bash
+# 1. 克隆代码
+git clone https://github.com/LiDu-china/VoskASR-.git
+cd VoskASR-
+
+# 2. 安装 Python 依赖
+pip install vosk pyaudio
+
+# 3. 下载语音模型（约 2GB）
+# 访问 https://alphacephei.com/vosk/models
+# 下载 vosk-model-cn-0.22
+# 解压到 model/ 目录
+
+# 4. 运行程序
+python "import tkinter as tk.py"
+```
+
+### 方式三：自行打包
+
+```bash
+# 安装打包工具
+pip install pyinstaller
+
+# 运行打包脚本
+build.bat
+
+# 安装 Inno Setup 后编译 setup.iss 生成安装包
+```
 
 ## 🚀 使用方法
 
