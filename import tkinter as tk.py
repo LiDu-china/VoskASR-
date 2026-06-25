@@ -9,6 +9,8 @@ import tempfile
 import os
 import sys
 import wave
+import urllib.request
+import zipfile
 from vosk import Model, KaldiRecognizer
 
 
@@ -61,19 +63,74 @@ class VoskRealTimeASR:
         self.init_vosk_model()
 
     def init_vosk_model(self):
-        """初始化Vosk中文模型"""
+        """初始化Vosk中文模型（支持自动下载）"""
+        # 检查模型是否存在
+        if not os.path.exists(MODEL_PATH):
+            print(f"模型不存在，需要下载: {MODEL_PATH}")
+            self.status_label.config(text="⏳ 首次运行，正在下载语音模型（约2GB）...", foreground="blue")
+            self.root.update()
+            # 启动下载线程
+            self.download_thread = threading.Thread(target=self.download_model)
+            self.download_thread.daemon = True
+            self.download_thread.start()
+            return
+
         try:
-            print(f"模型路径: {MODEL_PATH}")
-            print(f"路径存在: {os.path.exists(MODEL_PATH)}")
-            # 加载预下载的vosk中文模型
+            print(f"加载模型: {MODEL_PATH}")
             self.model = Model(model_path=MODEL_PATH)
             self.recognizer = KaldiRecognizer(self.model, SAMPLERATE)
-            self.recognizer.SetWords(True)  # 输出包含分词信息
-            self.status_label.config(text="✅ Vosk模型加载成功（cn-0.22）", foreground="green")
+            self.recognizer.SetWords(True)
+            self.status_label.config(text="✅ Vosk模型加载成功", foreground="green")
         except Exception as e:
-            error_msg = f"❌ 模型加载失败：{str(e)}\n路径: {MODEL_PATH}\n路径存在: {os.path.exists(MODEL_PATH)}"
+            error_msg = f"❌ 模型加载失败：{str(e)}"
             self.status_label.config(text="❌ 模型加载失败", foreground="red")
             print(error_msg)
+
+    def download_model(self):
+        """下载 Vosk 中文模型"""
+        model_url = "https://alphacephei.com/vosk/models/vosk-model-cn-0.22.zip"
+        zip_path = os.path.join(os.path.dirname(MODEL_PATH), "vosk-model-cn-0.22.zip")
+
+        try:
+            # 创建 model 目录
+            os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+
+            print(f"开始下载模型: {model_url}")
+            print(f"保存到: {zip_path}")
+
+            # 下载文件
+            def progress_hook(block_num, block_size, total_size):
+                downloaded = block_num * block_size
+                if total_size > 0:
+                    percent = min(100, downloaded * 100 // total_size)
+                    self.root.after(0, lambda p=percent: self.status_label.config(
+                        text=f"⏳ 正在下载模型... {p}%"))
+
+            urllib.request.urlretrieve(model_url, zip_path, progress_hook)
+
+            print("下载完成，正在解压...")
+            self.root.after(0, lambda: self.status_label.config(text="⏳ 正在解压模型..."))
+            self.root.update()
+
+            # 解压
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(os.path.dirname(MODEL_PATH))
+
+            # 删除 zip 文件
+            os.remove(zip_path)
+
+            print("模型准备完成！")
+            self.root.after(0, lambda: self.status_label.config(text="✅ 模型下载完成，正在加载..."))
+            self.root.update()
+
+            # 重新加载模型
+            self.init_vosk_model()
+
+        except Exception as e:
+            error_msg = f"❌ 模型下载失败：{str(e)}"
+            print(error_msg)
+            self.root.after(0, lambda: self.status_label.config(
+                text="❌ 模型下载失败，请检查网络或手动下载", foreground="red"))
 
     def init_audio_device(self):
         """初始化音频输入设备"""
